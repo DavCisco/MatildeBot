@@ -1,4 +1,5 @@
 import json
+import re
 
 
 a = '''
@@ -34,8 +35,10 @@ b = json.loads(a)
 dn = b['emails'][0]
 print(dn)
 
-a = 'matilde helpp casuse'
+a = 'matilde helpp c  asuse'
 
-if ' help' in a:
-    print('ok')
+trialId = re.search(r'\s[0-9]+', a)
+
+if trialId:
+    print('yes')
 
