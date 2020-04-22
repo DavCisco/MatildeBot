@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 def webhook(request):
 
     print('webhook received\n')
-    print(request)
+    print(request.body)
 
     return HttpResponse('<p>home view of the bot<p>')
 
