@@ -58,7 +58,7 @@ def webhook(request):
       
         # print('The request is ' + response)
 
-        message = '<@' + person.emails[0] + '>, ' + message
+        message = '<@personEmail:' + person.emails[0] + '>, ' + message
         
         wxapi.messages.create(room.id, markdown=message)
 
