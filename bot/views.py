@@ -19,7 +19,7 @@ def webhook(request):
     wxapi = WebexTeamsAPI(botToken)
 
     try:
-        fromUser  = wxapi.people.get(fromUserId)
+        fromUser  = str(wxapi.people.get(fromUserId))
         fromSpace = wxapi.rooms.get(fromSpaceId)
         message   = wxapi.messages.get(messageId)        
     except:
