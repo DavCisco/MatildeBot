@@ -2,16 +2,39 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from webexteamssdk import WebexTeamsAPI
 
 @csrf_exempt
 def webhook(request):
 
+    botToken = 'MDdiYTJmMjQtYTI1My00NzdkLWFiYWEtOTFlMDhiYWViMTBlY2I2OTY4MWEtNTBi_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f'
+
     print('webhook received, details:')
-    requestdata = json.loads(request.body)
-    print(requestdata)
-    print(requestdata['name'])
+    whookData = json.loads(request.body)
+    print(whookData)
+    fromUserId  = whookData['data']['personId']
+    fromSpaceId = whookData['data']['roomId']
+    messageId = whookData['data']['id']
+
+    wxapi = WebexTeamsAPI(botToken)
+
+    try:
+        fromUser  = wxapi.people.get(fromUserId)
+        fromSpace = wxapi.rooms.get(fromSpaceId)
+        message   = wxapi.messages.get(messageId)        
+    except:
+        print('API read error')
+
+    # fromUserName = json.loads(fromUser)['Name']
+
+    print('** user:\n'  + fromUser)
+    print('** space:\n'   + fromSpace)
+    print('** message:\n' + message)
     print('\n')
 
-    return HttpResponse('<p>home view of the bot<p>')
+
+
+
+    return HttpResponse('<p>greetings from Matilde<p>')
 
     
