@@ -43,11 +43,18 @@ def webhook(request):
                 trialId = re.search(r'\s[0-9]+', reqText)
                 if trialId:
                     trialId = int(trialId.group().strip())
-                    response = 'report for trial ' + trialId
+                    if trialId > 0:
+                        response = 'report for trial ' + str(trialId)
+                    else:
+                        response = 'report_incomplete'
+
                 else:
                     response = 'report_incomplete'
+            else:
+                response = 'unknown'
         else:
             response = 'unauthorized'
+
 
         print('The request is ' + response)
 
