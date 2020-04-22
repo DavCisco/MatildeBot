@@ -9,6 +9,12 @@ import time
 @csrf_exempt
 def webhook(request):
 
+    global bot_token
+    
+    bot_token = 'MDdiYTJmMjQtYTI1My00NzdkLWFiYWEtOTFlMDhiYWViMTBlY2I2OTY4MWEtNTBi_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f'
+
+    wxapi = WebexTeamsAPI(bot_token)
+
     # Create a Webhook object from the JSON data
     whookData = json.loads(request.body)
     webhook_obj = Webhook(whookData)
@@ -75,7 +81,6 @@ def authorizedRequest(email, space):
 
 def action(person_email, space_id, action, argument):
 
-    bot_token = 'MDdiYTJmMjQtYTI1My00NzdkLWFiYWEtOTFlMDhiYWViMTBlY2I2OTY4MWEtNTBi_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f'
     wxapi = WebexTeamsAPI(bot_token)
 
     action += str(argument)
