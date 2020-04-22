@@ -19,21 +19,24 @@ def webhook(request):
     wxapi = WebexTeamsAPI(botToken)
 
     try:
-        fromUser  = str(wxapi.people.get(fromUserId))
+        fromUser  = wxapi.people.get(fromUserId)
         fromSpace = wxapi.rooms.get(fromSpaceId)
         message   = wxapi.messages.get(messageId)        
     except:
         print('API read error')
 
-    userDName   = json.loads(fromUser)['displayName']
-    spaceName   = json.loads(fromSpace)['title']
-    messageText = json.loads(message)['text']
+    # userDName   = json.loads(fromUser)['displayName']
+    # spaceName   = json.loads(fromSpace)['title']
+    # messageText = json.loads(message)['text']
 
-    print('** user:\n' + userDName)
-    print('** space:\n' + spaceName)
-    print('** message:\n' + messageText)
-    print('\n')
+    # print('** user:\n' + userDName)
+    # print('** space:\n' + spaceName)
+    # print('** message:\n' + messageText)
+    # print('\n')
 
+    print(fromUser)
+    print(fromSpace)
+    print(message)
 
 
 
