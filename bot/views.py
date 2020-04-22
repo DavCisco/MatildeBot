@@ -10,8 +10,9 @@ def webhook(request):
     botToken = 'MDdiYTJmMjQtYTI1My00NzdkLWFiYWEtOTFlMDhiYWViMTBlY2I2OTY4MWEtNTBi_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f'
 
     print('Webhook received')
+
     # Create a Webhook object from the JSON data
-    webhook_obj = Webhook(json_data)
+    webhook_obj = Webhook(request.json)
 
     # whookData = json.loads(request.body)
     # # print(whookData)
