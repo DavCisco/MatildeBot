@@ -25,7 +25,7 @@ SECRET_KEY = '87#-pz7=5_s7hbn4r*naqs6soqwsn^i_exstxb38g3rf&=@^k#'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.mic-ebc.eu']
+ALLOWED_HOSTS = ['www.mic-ebc.eu','localhost']
 
 APPEND_SLASH = False
 
