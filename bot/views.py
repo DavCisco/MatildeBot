@@ -41,7 +41,9 @@ def webhook(request):
                 response = 'status'
             if 'report' in reqText:
                 trialId = re.search(r'\s[0-9]+', reqText)
-                response = 'report for trial ' + str(trialId.group()).strip()
+                
+                
+                response = 'report for trial *' + str(trialId.group()).strip() + '*'
         else:
             response = 'unauthorized'
 
