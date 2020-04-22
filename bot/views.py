@@ -25,11 +25,13 @@ def webhook(request):
     except:
         print('API read error')
 
-    # fromUserName = json.loads(fromUser)['Name']
+    userDName   = json.loads(fromUser)['displayName']
+    spaceName   = json.loads(fromSpace)['title']
+    messageText = json.loads(message)['text']
 
-    print('** user:\n'  + fromUser)
-    print('** space:\n'   + fromSpace)
-    print('** message:\n' + message)
+    print('** user:\n' + userDName)
+    print('** space:\n' + spaceName)
+    print('** message:\n' + messageText)
     print('\n')
 
 
