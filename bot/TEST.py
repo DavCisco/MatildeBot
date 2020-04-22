@@ -31,8 +31,11 @@ a = '''
     
 b = json.loads(a)
 
-id = b['id']
-dn = b['displayName']
-
-print(id)
+dn = b['emails'][0]
 print(dn)
+
+a = 'matilde helpp casuse'
+
+if ' help' in a:
+    print('ok')
+
