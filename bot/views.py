@@ -35,11 +35,11 @@ def webhook(request):
             reqText = message.text.strip().lower()
             if 'help' in reqText:
                 response = 'help'
-            if 'list' in reqText:
+            elif 'list' in reqText:
                 response = 'list_trials'
-            if 'status' in reqText:
+            elif 'status' in reqText:
                 response = 'status'
-            if 'report' in reqText:
+            elif 'report' in reqText:
                 trialId = re.search(r'\s[0-9]+', reqText)
                 if trialId:
                     trialId = int(trialId.group().strip())
