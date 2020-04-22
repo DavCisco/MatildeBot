@@ -2,41 +2,40 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from webexteamssdk import WebexTeamsAPI
+from webexteamssdk import WebexTeamsAPI, Webhook
 
 @csrf_exempt
 def webhook(request):
 
     botToken = 'MDdiYTJmMjQtYTI1My00NzdkLWFiYWEtOTFlMDhiYWViMTBlY2I2OTY4MWEtNTBi_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f'
 
-    print('webhook received, details:')
-    whookData = json.loads(request.body)
-    print(whookData)
-    fromUserId  = whookData['data']['personId']
-    fromSpaceId = whookData['data']['roomId']
-    messageId = whookData['data']['id']
+    print('Webhook received')
+    # Create a Webhook object from the JSON data
+    webhook_obj = Webhook(json_data)
 
+    # whookData = json.loads(request.body)
+    # # print(whookData)
+    # fromUserId  = whookData['data']['personId']
+    # fromSpaceId = whookData['data']['roomId']
+    # messageId = whookData['data']['id']
     wxapi = WebexTeamsAPI(botToken)
 
     try:
-        fromUser  = wxapi.people.get(fromUserId)
-        fromSpace = wxapi.rooms.get(fromSpaceId)
-        message   = wxapi.messages.get(messageId)        
+        # Get the room details
+        room = wxapi.rooms.get(webhook_obj.data.roomId)
+        # Get the message details
+        message = wxapi.messages.get(webhook_obj.data.id)
+        # Get the sender's details
+        person = wxapi.people.get(message.personId)
     except:
         print('API read error')
 
-    # userDName   = json.loads(fromUser)['displayName']
-    # spaceName   = json.loads(fromSpace)['title']
-    # messageText = json.loads(message)['text']
+    print("NEW MESSAGE IN ROOM '{}'".format(room.title))
+    print("FROM '{}'".format(person.displayName))
+    print("MESSAGE '{}'\n".format(message.text))
 
-    # print('** user:\n' + userDName)
-    # print('** space:\n' + spaceName)
-    # print('** message:\n' + messageText)
-    # print('\n')
 
-    print(fromUser)
-    print(fromSpace)
-    print(message)
+
 
 
 
