@@ -9,13 +9,10 @@ import time
 @csrf_exempt
 def webhook(request):
 
-    botToken = 'MDdiYTJmMjQtYTI1My00NzdkLWFiYWEtOTFlMDhiYWViMTBlY2I2OTY4MWEtNTBi_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f'
-
     # Create a Webhook object from the JSON data
     whookData = json.loads(request.body)
     webhook_obj = Webhook(whookData)
 
-    wxapi = WebexTeamsAPI(botToken)
     # Get the room details
     room = wxapi.rooms.get(webhook_obj.data.roomId)
     # Get the message details
@@ -33,10 +30,10 @@ def webhook(request):
         # checks if the sender and/or the space are authorized
         if authorizedRequest (person.emails[0], room.id):
 
+            argument = ''
             reqText = message.text.strip().lower()
             if 'help' in reqText:
                 response = 'help'
-                time.sleep(300)
             elif 'list' in reqText:
                 response = 'list_trials'
             elif 'status' in reqText:
@@ -46,7 +43,8 @@ def webhook(request):
                 if trialId:
                     trialId = int(trialId.group().strip())
                     if trialId > 0:
-                        response = 'report for trial ' + str(trialId)
+                        response = 'report for trial '
+                        argument = trialId
                     else:
                         response = 'report_incomplete'
                 else:
@@ -56,14 +54,8 @@ def webhook(request):
         else:
             response = 'unauthorized'
 
-        message = 'the request is ' + response
-      
-        # print('The request is ' + response)
-
-        message = '<@personEmail:' + person.emails[0] + '|Davide>, ' + message
-        
-        wxapi.messages.create(room.id, markdown=message)
-
+        # executes
+        action(person.emails[0], room.id, response, argument)
 
     return HttpResponse('<p>greetings from Matilde<p>')
 
@@ -73,7 +65,29 @@ def webhook(request):
     
 def authorizedRequest(email, space):
 
-    if email == 'dgrandis@cisco.com':
-        return True
+    # if email == 'dgrandis@cisco.com':
+    #     return True
+    # else:
+    #     return False
+    
+    return True
+
+
+def action(person_email, space_id, action, argument):
+
+    bot_token = 'MDdiYTJmMjQtYTI1My00NzdkLWFiYWEtOTFlMDhiYWViMTBlY2I2OTY4MWEtNTBi_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f'
+    wxapi = WebexTeamsAPI(bot_token)
+
+    action += str(argument)
+    message = 'the request is ' + action
+
+    if person_email == 'dgrandis@cisco.com':
+        message = '<@personEmail:dgrandis@cisco.com|Davide>, ' + message
     else:
-        return False
+        message = '<@personEmail:' + person_email + '>, ' + message
+
+    wxapi.messages.create(space_id, markdown=message)
+
+
+
+
