@@ -47,7 +47,6 @@ def webhook(request):
                         response = 'report for trial ' + str(trialId)
                     else:
                         response = 'report_incomplete'
-
                 else:
                     response = 'report_incomplete'
             else:
@@ -55,8 +54,14 @@ def webhook(request):
         else:
             response = 'unauthorized'
 
+        message = 'the request is ' + response
+      
+        # print('The request is ' + response)
 
-        print('The request is ' + response)
+        message = '<@' + person.emails[0] + '>, ' + message
+        
+        wxapi.messages.create(room.id, markdown=message)
+
 
     return HttpResponse('<p>greetings from Matilde<p>')
 
