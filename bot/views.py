@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import re
 from webexteamssdk import WebexTeamsAPI, Webhook
+import time
 
 @csrf_exempt
 def webhook(request):
@@ -35,6 +36,7 @@ def webhook(request):
             reqText = message.text.strip().lower()
             if 'help' in reqText:
                 response = 'help'
+                time.sleep(300)
             elif 'list' in reqText:
                 response = 'list_trials'
             elif 'status' in reqText:
