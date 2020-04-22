@@ -5,5 +5,5 @@ from bot import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('events/', views.webhook, name='webhook'),
+    path('events', views.webhook, name='webhook'),
 ]
