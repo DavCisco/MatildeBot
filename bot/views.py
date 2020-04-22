@@ -12,9 +12,9 @@ def webhook(request):
     print('Webhook received')
 
     # Create a Webhook object from the JSON data
-    webhook_obj = Webhook(request.json)
+    whookData = json.loads(request.body)
+    webhook_obj = Webhook(whookData)
 
-    # whookData = json.loads(request.body)
     # # print(whookData)
     # fromUserId  = whookData['data']['personId']
     # fromSpaceId = whookData['data']['roomId']
