@@ -42,7 +42,7 @@ def webhook(request):
             if 'report' in reqText:
                 trialId = re.search(r'\s[0-9]+', reqText)
                 if trialId:
-                    trialId = trialId.group().strip()
+                    trialId = int(trialId.group().strip())
                     response = 'report for trial ' + trialId
                 else:
                     response = 'report_incomplete'
