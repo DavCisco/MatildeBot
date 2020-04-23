@@ -87,7 +87,7 @@ def action(person_email, space_id, action, argument):
     message = 'the request is ' + action
 
     if person_email == 'dgrandis@cisco.com':
-        message = '<@personEmail:dgrandis@cisco.com|Davide>, ' + message
+        message = '<@personEmail:dgrandis@cisco.com|Master>, ' + message
     else:
         message = '<@personEmail:' + person_email + '>, ' + message
 
