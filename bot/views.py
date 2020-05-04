@@ -203,9 +203,18 @@ def action(person_email, space_id, action, argument):
         response += ' - report <id>: report of trial #id\n'
         response += ' - help:        this output'
 
-        mention = '<@personEmail:{}>'.format(person_email)
-        message = '{} {}'.format(mention,response)
-        api.messages.create(space_id, markdown=message)
+    elif action == 'echo':
+        response = 'request:\n'
+        response += argument
+
+    else:
+        return
+
+    mention = '<@personEmail:{}>'.format(person_email)
+    message = '{} {}'.format(mention,response)
+    api.messages.create(space_id, markdown=message)
+
+
 
 
 def ChannelReport():
