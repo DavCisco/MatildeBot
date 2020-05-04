@@ -12,8 +12,6 @@ import json
 import re
 from webexteamssdk import WebexTeamsAPI, Webhook
 
-
-
 @csrf_exempt
 def webhook(request):
 
@@ -69,7 +67,9 @@ def webhook(request):
             except Exception as e:
                 logger.error('Error creating the configuration file: ' + e)
 
-        global botToken, logSpace, NOTIF_ON
+        global botToken
+        global logSpace
+        global NOTIF_ON
 
         config = configparser.ConfigParser(allow_no_value=True)
 
@@ -101,13 +101,14 @@ def webhook(request):
             return False
         return True
 
+
     SetupLogging()
     logger.info('Scheduler started')
     if not ReadSettings(file='config.ini'):
         logger.critical('Terminating')
         sys.exit()
 
-    api = WebexTeamsAPI(bot_token)
+    api = WebexTeamsAPI(botToken)
 
     # Create a Webhook object from the JSON data
     whookData = json.loads(request.body)
@@ -194,7 +195,7 @@ def action(person_email, space_id, action, argument):
     # else:
     #     message = '<@personEmail:' + person_email + '>, {}'.format(message)
 
-    api = WebexTeamsAPI(bot_token)
+    api = WebexTeamsAPI(botToken)
 
     if action == 'help':
         response = 'these are the commands:\n'
