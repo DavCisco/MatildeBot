@@ -199,11 +199,11 @@ def action(person_email, space_id, action, argument):
 
     if action == 'help':
         response = 'these are the commands:\n'
-        response += '```'
+        response += '```\n'
         response += 'list:        detailed report of all trials\n'
         response += 'status:      summary of all trials\n'
         response += 'report <id>: report of trial #id\n'
-        response += 'help:        this output'
+        response += 'help:        this output\n'
         response += '```'
 
     elif action == 'echo':
