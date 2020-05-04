@@ -67,9 +67,7 @@ def webhook(request):
             except Exception as e:
                 logger.error('Error creating the configuration file: ' + e)
 
-        global botToken
-        global logSpace
-        global NOTIF_ON
+        global botToken, logSpace, NOTIF_ON
 
         config = configparser.ConfigParser(allow_no_value=True)
 
@@ -103,7 +101,7 @@ def webhook(request):
 
 
     SetupLogging()
-    logger.info('Scheduler started')
+    logger.info("Matilde's Webhook received...")
     if not ReadSettings(file='config.ini'):
         logger.critical('Terminating')
         sys.exit()
@@ -197,6 +195,13 @@ def action(person_email, space_id, action, argument):
 
     api = WebexTeamsAPI(botToken)
 
+    if argument <> '':
+        log_msg = 'Request: {}/{} from user {} and space {}'.format(action, argument, person_email, space_id) 
+    else:
+        log_msg = 'Request: {} from user {} and space {}'.format(action, person_email, space_id) 
+    logger.info(log_msg)
+
+
     if action == 'help':
         response = 'these are the commands:\n'
         response += '```\n'
@@ -207,7 +212,7 @@ def action(person_email, space_id, action, argument):
         response += '```'
 
     elif action == 'echo':
-        response = 'request:\n'
+        response  = 'request:\n'
         response += argument
 
     else:
