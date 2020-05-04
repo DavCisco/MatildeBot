@@ -195,7 +195,7 @@ def action(person_email, space_id, action, argument):
 
     api = WebexTeamsAPI(botToken)
 
-    if argument <> '':
+    if argument != '':
         log_msg = 'Request: {}/{} from user {} and space {}'.format(action, argument, person_email, space_id) 
     else:
         log_msg = 'Request: {} from user {} and space {}'.format(action, person_email, space_id) 
