@@ -200,10 +200,10 @@ def action(person_email, space_id, action, argument):
     if action == 'help':
         response = 'these are the commands:\n'
         response += '```'
-        response += ' - list:        detailed report of all trials\n'
-        response += ' - status:      summary of all trials\n'
-        response += ' - report <id>: report of trial #id\n'
-        response += ' - help:        this output'
+        response += 'list:        detailed report of all trials\n'
+        response += 'status:      summary of all trials\n'
+        response += 'report <id>: report of trial #id\n'
+        response += 'help:        this output'
         response += '```'
 
     elif action == 'echo':
@@ -214,7 +214,7 @@ def action(person_email, space_id, action, argument):
         return
 
     mention = '<@personEmail:{}>'.format(person_email)
-    message = '{} {}'.format(mention,response)
+    message = '{}, {}'.format(mention,response)
     api.messages.create(space_id, markdown=message)
 
 
