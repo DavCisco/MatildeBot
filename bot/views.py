@@ -260,7 +260,8 @@ def action(person_email, space_id, action, argument):
     elif action == 'status':
         mention = '<@personEmail:{}>'.format(person_email)
         message = 'relax, life is good :-)'
-        message += '\n*Hint: status is work in progress*'
+        api.messages.create(space_id, markdown=message)
+        message += '*Hint: status is work in progress*'
         api.messages.create(space_id, markdown=message)
 
     elif action == 'unauthorized':
