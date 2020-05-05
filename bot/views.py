@@ -181,11 +181,15 @@ def webhook(request):
 
 def authorizedRequest(email, space):
 
+    # for the spaces, the bot must be a member of the Team Space
     api = WebexTeamsAPI(botToken)
 
     authz_users = ['dgrandis@cisco.com', 'pmanto@rstore.it']
-
-    if email in authz_users and space in api.rooms.list(teamId=TeamScope):
+    spaces = api.rooms.list(teamId=TeamScope)
+    authz_spaces = []
+    for record in spaces:
+        authz_spaces.append(record.id)
+    if email in authz_users and space in authz_spaces:
         return True
     else:
         return False
