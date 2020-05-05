@@ -259,9 +259,9 @@ def action(person_email, space_id, action, argument):
 
     elif action == 'status':
         mention = '<@personEmail:{}>'.format(person_email)
-        message = 'relax, life is good :-)'
+        message = 'relax, life is good'
         api.messages.create(space_id, markdown=message)
-        message += '*Hint: status is work in progress*'
+        message = '*Hint: status is work in progress*'
         api.messages.create(space_id, markdown=message)
 
     elif action == 'unauthorized':
@@ -510,6 +510,8 @@ def ChannelReport(space_id, person_email):
 
     global connection
 
+    api = WebexTeamsAPI(botToken)
+
     try:
         connection = pymysql.connect(host=DBhost, port=int(DBport), user=DBuser, password=DBpass, db=DBname)
     except Exception as e:
@@ -522,28 +524,36 @@ def ChannelReport(space_id, person_email):
     cursor = connection.cursor()
     sql = "SELECT id FROM channels WHERE notificationSpace = '%s'" % space_id
     cursor.execute(sql)
-    record = cursor.fetchone()
-    channel = str(record[0])
-    log_msg = 'Requested channel report for channel ' + format(channel)
-    logger.info(log_msg)
+    channels = cursor.fetchall()  # for channels that share the same space
 
-    # Creates the report in the "/reports" folder
-    filename = BuildChannelReport(channel)
+    if not channels:
+        msg = 'No channel found'
+        logger.warning(msg)
+        mention  = '<@personEmail:{}>'.format(person_email)
+        message  = '{}, {}'.format(mention, msg)
+        api.messages.create(space_id, markdown=message)
 
-    if not filename:
-        msg = 'No trials have been requested for channel ' + \
-            str(channel)
     else:
-        msg = 'Report for channel ' + str(channel) + ' ready at ' + filename
-    logger.info(msg)
-
-    # # posts the report
-    response = 'here is the report with the list of all trials'
-    mention  = '<@personEmail:{}>'.format(person_email)
-    message  = '{}, {}'.format(mention, response)
-    api = WebexTeamsAPI(botToken)
-    api.messages.create(space_id, markdown=message, files=[filename])
-    logger.info('Report posted')
+        for record in channels:
+            channel = str(record[0])
+            logger.info('Requested report for channel {}'.format(channel))
+            # Creates the report in the "/reports" folder
+            filename = BuildChannelReport(channel)
+            if not filename:
+                msg = 'No trials have been requested yet'
+                logger.warning(msg)
+                mention = '<@personEmail:{}>'.format(person_email)
+                message = '{}, {}'.format(mention, msg)
+                api.messages.create(space_id, markdown=message)
+            else:
+                msg = 'Report for channel {} ready at {}'.format(channel, filename)
+                logger.info(msg)
+                # posts the report
+                response = 'here is the report with the list of all trials'
+                mention  = '<@personEmail:{}>'.format(person_email)
+                message  = '{}, {}'.format(mention, response)
+                api.messages.create(space_id, markdown=message, files=[filename])
+                logger.info('Report posted')
 
     connection.close()
     logger.debug('ChannelReport: closed connection to the DB')
@@ -739,9 +749,11 @@ def OrgReport(space_id, person_email, trial_id):
     cursor.execute(sql)
     company = cursor.fetchone()
     if not company:
-        response = 'invalid trial id {}. Hint: list all trials first'.format(trial_id)
+        response = 'invalid trial id {}'.format(trial_id)
         mention = '<@personEmail:{}>'.format(person_email)
         message = '{}, {}'.format(mention, response)
+        api.messages.create(space_id, markdown=message)
+        message = '*Hint: **list** all trials first*'
         api.messages.create(space_id, markdown=message)
         logger.info('OrgReport: invalid trialId requested')
 
