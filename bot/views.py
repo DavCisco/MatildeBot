@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 import logging
 import time
+import datetime
 import socket
 import os
 import sys
@@ -11,6 +12,8 @@ import configparser
 import json
 import re
 from webexteamssdk import WebexTeamsAPI, Webhook
+import xlsxwriter
+import pymysql.cursors
 
 @csrf_exempt
 def webhook(request):
@@ -54,6 +57,13 @@ def webhook(request):
                 config.set('WXT', 'botToken', '<input here>')
                 config.set('WXT', 'logSpace', '<input here>')
                 config.set('WXT', 'notification', 'No')
+                config.set('WXT', 'TeamScope', '<input here>')
+                config.add_section('DB')
+                config.set('DB', 'host',     '<input here>')
+                config.set('DB', 'port',     '<input here>')
+                config.set('DB', 'user',     '<input here>')
+                config.set('DB', 'password', '<input here>')
+                config.set('DB', 'dbname',   '<input here>')
 
                 with open(filename, 'w') as configfile:
                     config.write(configfile)
@@ -67,7 +77,9 @@ def webhook(request):
             except Exception as e:
                 logger.error('Error creating the configuration file: ' + e)
 
-        global botToken, logSpace, NOTIF_ON
+        global botToken, logSpace, NOTIF_ON, TeamScope
+        global DBhost, DBport, DBuser, DBpass, DBname
+
 
         config = configparser.ConfigParser(allow_no_value=True)
 
@@ -78,9 +90,15 @@ def webhook(request):
         if os.path.isfile(file):
             try:
                 config.read(file)
-                botToken = str(config['WXT']['botToken']).strip()
-                logSpace = str(config['WXT']['logSpace']).strip()
-                NOTIF_ON = config.getboolean('WXT', 'notification')
+                botToken  = str(config['WXT']['botToken']).strip()
+                logSpace  = str(config['WXT']['logSpace']).strip()
+                NOTIF_ON  = config.getboolean('WXT', 'notification')
+                TeamScope = str(config['WXT']['TeamScope']).strip()
+                DBhost = str(config['DB']['host']).strip()
+                DBport = str(config['DB']['port']).strip()
+                DBuser = str(config['DB']['user']).strip()
+                DBpass = str(config['DB']['password']).strip()
+                DBname = str(config['DB']['dbname']).strip()
 
                 # Validation of settings
                 if len(botToken) < 90:
@@ -99,9 +117,8 @@ def webhook(request):
             return False
         return True
 
-
     SetupLogging()
-    logger.info("Matilde's Webhook received...")
+    logger.info("Matilde's webhook received...")
     if not ReadSettings(file='config.ini'):
         logger.critical('Terminating')
         sys.exit()
@@ -131,7 +148,7 @@ def webhook(request):
 
             argument = ''
             reqText = message.text.strip().lower()
-            if 'help' in reqText:
+            if reqText == '' or 'help' in reqText:
                 response = 'help'
             elif 'list' in reqText:
                 response = 'list_trials'
@@ -164,9 +181,11 @@ def webhook(request):
 
 def authorizedRequest(email, space):
 
-    authz = ['dgrandis@cisco.com', 'pmanto@rstore.it']
+    api = WebexTeamsAPI(botToken)
 
-    if email in authz:
+    authz_users = ['dgrandis@cisco.com', 'pmanto@rstore.it']
+
+    if email in authz_users and space in api.rooms.list(teamId=TeamScope):
         return True
     else:
         return False
@@ -201,7 +220,6 @@ def action(person_email, space_id, action, argument):
         log_msg = 'Request: {} from user {} and space {}'.format(action, person_email, space_id) 
     logger.info(log_msg)
 
-
     if action == 'help':
         response = 'these are the commands:\n'
         response += '```\n'
@@ -210,22 +228,27 @@ def action(person_email, space_id, action, argument):
         response += 'report <id>: report of trial #id\n'
         response += 'help:        this output\n'
         response += '```'
+        mention = '<@personEmail:{}>'.format(person_email)
+        message = '{}, {}'.format(mention, response)
+        api.messages.create(space_id, markdown=message)
 
     elif action == 'echo':
         response  = 'request:\n'
         response += argument
+        mention = '<@personEmail:{}>'.format(person_email)
+        message = '{}, {}'.format(mention, response)
+        api.messages.create(space_id, markdown=message)
 
+    elif action == 'list_trials':
+        message = 'creating report...'
+        api.messages.create(space_id, markdown=message)
+        ChannelReport(space_id)
+    
     else:
         return
 
-    mention = '<@personEmail:{}>'.format(person_email)
-    message = '{}, {}'.format(mention,response)
-    api.messages.create(space_id, markdown=message)
 
-
-
-
-def ChannelReport():
+def ChannelReport(space_id):
 
     def BuildChannelReport(id):
 
@@ -462,52 +485,38 @@ def ChannelReport():
     global connection
 
     try:
-        connection = pymysql.connect(host=DBhost, port=int(DBport), user=DBuser, password=DBpass, db=dbName)
+        connection = pymysql.connect(host=DBhost, port=int(DBport), user=DBuser, password=DBpass, db=DBname)
     except Exception as e:
-        logger.critical('ChannelReport: error opening the DB. ' +
-                        str(e) + '. Check settings in the .ini file')
+        logger.critical('ChannelReport: error opening the DB. ' + str(e) + '. Check settings in the .ini file')
         logger.critical('Terminating')
         sys.exit()
     logger.debug('ChannelReport: connected to the DB')
 
-    channelId = SelectChannel()
-    if channelId == '':
-        logger.warning('Invalid channel selection')
-        return False
-    if channelId == 'all':
-        channels = []
-        cursor = connection.cursor()
-        sql = "SELECT id FROM channels ORDER BY id"
-        cursor.execute(sql)
-        records = cursor.fetchall()
-        for record in records:
-            channels.append(record[0])
+    # retrieves the channel from the space
+    cursor = connection.cursor()
+    sql = "SELECT id FROM channels WHERE notificationSpace = '%s'" % space_id
+    cursor.execute(sql)
+    record = cursor.fetchone()
+    channel = str(record[0])
+    log_msg = 'Requested channel report for channel ' + format(channel)
+    logger.info(log_msg)
+
+    # Creates the report in the "/reports" folder
+    filename = BuildChannelReport(channel)
+
+    if not filename:
+        msg = 'No trials have been requested for channel ' + \
+            str(channel)
     else:
-        channels = [channelId]
+        msg = 'Report for channel ' + str(channel) + ' ready at ' + filename
+    logger.info(msg)
 
-    for channel in channels:
+    # # posts the report
+    # if notificationOn == 'yes':
+    #     PostReport(filename, notificationSpace, companyName, companyProvStatus, count)
 
-        logger.info('Channel report for channel ' +
-                    str(channel) + ' requested')
-
-        # Creates the report in the "/reports" folder
-        filename = BuildChannelReport(channel)
-
-        if not filename:
-            msg = 'No trials have been requested for channel ' + \
-                str(channel)
-        else:
-            msg = 'Report for channel ' + \
-                str(channel) + ' ready at ' + filename
-        logger.info(msg)
-        print(msg + '\n')
-
-        # # posts the report
-        # if notificationOn == 'yes':
-        #     PostReport(filename, notificationSpace, companyName, companyProvStatus, count)
-
-        # if LOG_REPORT:
-        #     PostReport(filename, logSpace, companyName, companyProvStatus, count)
+    # if LOG_REPORT:
+    #     PostReport(filename, logSpace, companyName, companyProvStatus, count)
 
     connection.close()
     logger.debug('ChannelReport: closed connection to the DB')
