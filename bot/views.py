@@ -151,8 +151,6 @@ def webhook(request):
             reqText = message.text.strip().lower()
             if reqText.lower() == 'matilde' or 'help' in reqText:
                 response = 'help'
-            elif 'list' in reqText:
-                response = 'list_trials'
             elif 'status' in reqText:
                 response = 'status'
             elif 'report' in reqText:
@@ -204,8 +202,7 @@ def action(person_email, space_id, action, argument):
     # List of actions:
 
     # - 'help'               -> done
-    # - 'list_trials'        -> done   
-    # - 'status'
+    # - 'status'             -> done
     # - 'trial_report' with argument = trial_id
 
     # Others:
@@ -247,7 +244,7 @@ def action(person_email, space_id, action, argument):
         message = '{}, {}'.format(mention, response)
         api.messages.create(space_id, markdown=message)
 
-    elif action == 'list_trials':
+    elif action == 'status':
         message = 'checking...'
         api.messages.create(space_id, markdown=message)
         ChannelReport(space_id, person_email)
@@ -256,13 +253,6 @@ def action(person_email, space_id, action, argument):
         message = 'checking...'
         api.messages.create(space_id, markdown=message)
         OrgReport(space_id, person_email, argument)
-
-    elif action == 'status':
-        mention = '<@personEmail:{}>'.format(person_email)
-        message = 'relax, life is good'
-        api.messages.create(space_id, markdown=message)
-        message = '*Hint: status is work in progress*'
-        api.messages.create(space_id, markdown=message)
 
     elif action == 'unauthorized':
         message = '*unauthorized access*'
@@ -761,7 +751,7 @@ def OrgReport(space_id, person_email, trial_id):
         # Creates the report in the "/reports" folder
         filename = BuildOrgProvReport(trial_id)
         # posts the report
-        response = 'find here the report for the requested trial'
+        response = 'here is the report for the requested trial'
         mention = '<@personEmail:{}>'.format(person_email)
         message = '{}, {}'.format(mention, response)
         api.messages.create(space_id, markdown=message, files=[filename])
