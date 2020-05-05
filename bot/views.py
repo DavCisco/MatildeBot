@@ -144,11 +144,12 @@ def webhook(request):
     if person.displayName != 'Matilde':
 
         # checks if the sender and/or the space are authorized
-        if authorizedRequest (person.emails[0], room.id):
+        if authorizedRequest(person.emails[0], room.id):
+            logger.info('Request from authz user/space {}/{}'.format(person.emails[0], room.id))
 
             argument = ''
             reqText = message.text.strip().lower()
-            if reqText == '' or 'help' in reqText:
+            if reqText.lower() == 'matilde' or 'help' in reqText:
                 response = 'help'
             elif 'list' in reqText:
                 response = 'list_trials'
