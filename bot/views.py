@@ -247,13 +247,13 @@ def action(person_email, space_id, action, argument):
     elif action == 'list_trials':
         message = 'creating report...'
         api.messages.create(space_id, markdown=message)
-        ChannelReport(space_id)
+        ChannelReport(space_id, person_email)
     
     else:
         return
 
 
-def ChannelReport(space_id):
+def ChannelReport(space_id, person_email):
 
     def BuildChannelReport(id):
 
@@ -517,11 +517,15 @@ def ChannelReport(space_id):
     logger.info(msg)
 
     # # posts the report
-    # if notificationOn == 'yes':
-    #     PostReport(filename, notificationSpace, companyName, companyProvStatus, count)
+    response = 'here is the report with the list of all trials'
+    mention  = '<@personEmail:{}>'.format(person_email)
+    message  = '{}, {}'.format(mention, response)
+    api = WebexTeamsAPI(botToken)
+    api.messages.create(space_id, markdown=message, files=[filename])
 
-    # if LOG_REPORT:
-    #     PostReport(filename, logSpace, companyName, companyProvStatus, count)
+    logger.info('Report posted')
+
+
 
     connection.close()
     logger.debug('ChannelReport: closed connection to the DB')
