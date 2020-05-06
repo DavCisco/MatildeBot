@@ -253,11 +253,17 @@ def action(person_email, space_id, action, argument):
         api.messages.create(space_id, markdown=message)
         OrgReport(space_id, person_email, argument)
 
+    elif action == 'report_incomplete':
+        message = 'please specify the trial id for the report'
+        api.messages.create(space_id, markdown=message)
+
     elif action == 'unauthorized':
         message = '*unauthorized access*'
         api.messages.create(space_id, markdown=message)
 
-
+    elif action == 'unknown':
+        message = "Don't understand your request. Please check ```help```"
+        api.messages.create(space_id, markdown=message)
 
     else:
         return
