@@ -739,7 +739,14 @@ def OrgReport(space_id, person_email, trial_id):
         sys.exit()
     logger.debug('OrgReport: connected to the DB')
 
-    sql  = "SELECT * FROM companies WHERE id= '%s'" % trial_id
+    if person_email == 'dgrandis@cisco.com':
+        sql  = "SELECT * FROM companies WHERE id= '%s'" % trial_id
+    else:
+        # privacy: only trials associated to the space via the channel(s) 
+        sql  = "SELECT * FROM companies INNER JOIN channels ON companies.channelId = channels.id"
+        sql += " WHERE channels.notificationSpace = '%'" % space_id 
+        sql += " AND companies.id = '%s'" % trial_id
+
     cursor = connection.cursor()
     cursor.execute(sql)
     company = cursor.fetchone()
@@ -750,7 +757,7 @@ def OrgReport(space_id, person_email, trial_id):
         api.messages.create(space_id, markdown=message)
         message = '*Hint: **list** all trials first*'
         api.messages.create(space_id, markdown=message)
-        logger.info('OrgReport: invalid trialId requested')
+        logger.info('OrgReport: invalid trial id requested')
 
     else:
         # Creates the report in the "/reports" folder
