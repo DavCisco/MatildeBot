@@ -522,7 +522,7 @@ def ChannelReport(space_id, person_email):
     channels = cursor.fetchall()  # for channels that share the same space
 
     if not channels:
-        msg = 'No channel found'
+        msg = 'no channel found'
         logger.warning(msg)
         mention  = '<@personEmail:{}>'.format(person_email)
         message  = '{}, {}'.format(mention, msg)
