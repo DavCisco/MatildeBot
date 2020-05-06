@@ -744,7 +744,7 @@ def OrgReport(space_id, person_email, trial_id):
     else:
         # privacy: only trials associated to the space via the channel(s) 
         sql  = "SELECT * FROM companies INNER JOIN channels ON companies.channelId = channels.id"
-        sql += " WHERE channels.notificationSpace = '%'" % space_id 
+        sql += " WHERE channels.notificationSpace = '%s'" % space_id
         sql += " AND companies.id = '%s'" % trial_id
 
     cursor = connection.cursor()
