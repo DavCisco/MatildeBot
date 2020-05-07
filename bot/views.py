@@ -140,42 +140,47 @@ def webhook(request):
     # print("FROM '{}'".format(person.displayName))
     # print("MESSAGE '{}'\n".format(message.text))
 
-    # filters out messages sent directly by Matilde
+    # filters out messages sent by Matilde herself
     if person.displayName != 'Matilde':
 
         # checks if the sender and/or the space are authorized
         if authorizedRequest(person.emails[0], room.id):
             logger.info('Request from authz user/space {}/{}'.format(person.emails[0], room.id))
 
-            argument = ''
-            reqText = message.text.strip().lower()
-            if reqText.lower() == 'matilde' or 'help' in reqText:
-                response = 'help'
-            elif 'status' in reqText:
-                response = 'status'
-            elif 'report' in reqText:
-                trialId = re.search(r'\s[0-9]+', reqText)
-                if trialId:
-                    trialId = int(trialId.group().strip())
-                    if trialId > 0:
-                        response = 'trial_report'
-                        argument = trialId
+            # checks if the BOT service is enabled in the Matilde's DB
+            if not BOT_enabled():
+                response = 'maintenance'
+            else:
+                argument = ''
+                reqText = message.text.strip().lower()
+                if reqText.lower() == 'matilde' or 'help' in reqText:
+                    response = 'help'
+                elif 'status' in reqText:
+                    response = 'status'
+                elif 'report' in reqText:
+                    trialId = re.search(r'\s[0-9]+', reqText)
+                    if trialId:
+                        trialId = int(trialId.group().strip())
+                        if trialId > 0:
+                            response = 'trial_report'
+                            argument = trialId
+                        else:
+                            response = 'report_incomplete'
                     else:
                         response = 'report_incomplete'
+                elif 'echo' in reqText:
+                    response = 'echo'
+                    argument = reqText
                 else:
-                    response = 'report_incomplete'
-            elif 'echo' in reqText:
-                response = 'echo'
-                argument = reqText
-            else:
-                response = 'unknown'
+                    response = 'unknown'
         else:
             response = 'unauthorized'
-
+        
         # executes
         action(person.emails[0], room.id, response, argument)
 
     return HttpResponse('<p>greetings from Matilde<p>')
+
 
 
 def authorizedRequest(email, space):
@@ -196,6 +201,29 @@ def authorizedRequest(email, space):
         else:
             return False
 
+def BOT_enabled():
+
+    global connection
+
+    try:
+        connection = pymysql.connect(host=DBhost, port=int(DBport), user=DBuser, password=DBpass, db=DBname)
+    except Exception as e:
+        logger.critical('BOT_enabled: error opening the DB. ' + str(e) + '. Check settings in the .ini file')
+        logger.critical('Terminating')
+        sys.exit()
+    logger.debug('BOT_enabled: connected to the DB')
+
+    # retrieves the channel from the space
+    cursor = connection.cursor()
+    sql = "SELECT active FROM control WHERE process = 'bot'"
+    cursor.execute(sql)
+    field = cursor.fetchone()
+    if field[0] = 'yes':
+        logger.info('BOT process active in the DB, continues')
+        return True
+    else:
+        logger.warning('BOT process inactive in the DB, stopping')
+        return False
 
 def action(person_email, space_id, action, argument):
     '''
@@ -210,6 +238,7 @@ def action(person_email, space_id, action, argument):
     # - 'report_incomplete'
     # - 'unknown'
     # - 'unauthorized'
+    # - 'maintenance'
     '''
 
     # if person_email == 'dgrandis@cisco.com':
@@ -261,13 +290,16 @@ def action(person_email, space_id, action, argument):
         message = '*unauthorized access*'
         api.messages.create(space_id, markdown=message)
 
+    elif action == 'maintenance':
+        message = "Sorry, I'm temporarily unavailable. Please try again later"
+        api.messages.create(space_id, markdown=message)
+
     elif action == 'unknown':
         message = "Don't understand your request. Please check ```help```"
         api.messages.create(space_id, markdown=message)
 
     else:
         return
-
 
 def ChannelReport(space_id, person_email):
 
