@@ -218,7 +218,7 @@ def BOT_enabled():
     sql = "SELECT active FROM control WHERE process = 'bot'"
     cursor.execute(sql)
     field = cursor.fetchone()
-    if field[0] = 'yes':
+    if field[0] == 'yes':
         logger.info('BOT process active in the DB, continues')
         return True
     else:
