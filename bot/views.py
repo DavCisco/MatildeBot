@@ -148,6 +148,7 @@ def webhook(request):
             logger.info('Request from authz user/space {}/{}'.format(person.emails[0], room.id))
 
             # checks if the BOT service is enabled in the Matilde's DB
+            argument = ''
             if not BOT_enabled():
                 response = 'maintenance'
             else:
@@ -176,7 +177,7 @@ def webhook(request):
             response = 'unauthorized'
         
         # executes
-        action(person.emails[0], room.id, response, argument='')
+        action(person.emails[0], room.id, response, argument)
 
     return HttpResponse('<p>greetings from Matilde<p>')
 
