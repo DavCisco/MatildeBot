@@ -177,7 +177,7 @@ def webhook(request):
             response = 'unauthorized'
         
         # executes
-        action(person.emails[0], room.id, response, argument)
+        action(person.emails[0], room.id, response, argument='')
 
     return HttpResponse('<p>greetings from Matilde<p>')
 
