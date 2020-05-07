@@ -151,7 +151,6 @@ def webhook(request):
             if not BOT_enabled():
                 response = 'maintenance'
             else:
-                argument = ''
                 reqText = message.text.strip().lower()
                 if reqText.lower() == 'matilde' or 'help' in reqText:
                     response = 'help'
