@@ -129,11 +129,11 @@ def webhook(request):
     whookData = json.loads(request.body)
     webhook_obj = Webhook(whookData)
 
-    # Get the room details
+    # Get the space details
     room = api.rooms.get(webhook_obj.data.roomId)
     # Get the message details
     message = api.messages.get(webhook_obj.data.id)
-    # Get the sender's details
+    # Get the sender details
     person = api.people.get(message.personId)
 
     # print("NEW MESSAGE IN ROOM '{}'".format(room.title))
