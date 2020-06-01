@@ -175,8 +175,8 @@ def webhook(request):
                     response = 'unknown'
         else:
             response = 'unauthorized'
+            argument = ''
         # executes
-        logger.info('*** pre-action*** response: {}'.format(response))
         action(person.emails[0], room.id, response, argument)
 
     return HttpResponse('<p>greetings from Matilde<p>')
@@ -248,10 +248,10 @@ def action(person_email, space_id, action, argument):
 
     api = WebexTeamsAPI(botToken)
 
-    if argument != '':
-        log_msg = 'Request: {}/{} from user {} and space {}'.format(action, argument, person_email, space_id) 
+    if argument == '':
+        log_msg = 'Request: {} from user {} and space {}'.format(action, person_email, space_id)
     else:
-        log_msg = 'Request: {} from user {} and space {}'.format(action, person_email, space_id) 
+        log_msg = 'Request: {}/{} from user {} and space {}'.format(action, argument, person_email, space_id)
     logger.info(log_msg)
 
     if action == 'help':
