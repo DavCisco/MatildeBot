@@ -174,10 +174,9 @@ def webhook(request):
                 else:
                     response = 'unknown'
         else:
-            logger.info('**UNAUTH**')
             response = 'unauthorized'
-        
         # executes
+        logger.info('*** pre-action*** response: {}'.format(response))
         action(person.emails[0], room.id, response, argument)
 
     return HttpResponse('<p>greetings from Matilde<p>')
