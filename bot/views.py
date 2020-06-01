@@ -261,8 +261,11 @@ def action(person_email, space_id, action, argument):
         response += 'report <id>: report of trial #id\n'
         response += 'help:        this output\n'
         response += '```'
-        mention = '<@personEmail:{}>'.format(person_email)
-        message = '{}, {}'.format(mention, response)
+
+        if person_email == 'dgrandis@cisco.com':
+            message = '<@personEmail:dgrandis@cisco.com|Master>, {}'.format(message)
+        else:
+            message = '<@personEmail:{}>, {}'.format(person_email, message)
         api.messages.create(space_id, markdown=message)
 
     elif action == 'echo':
