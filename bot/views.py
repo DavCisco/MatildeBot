@@ -240,12 +240,6 @@ def action(person_email, space_id, action, argument):
     # - 'unauthorized'
     # - 'maintenance'
     '''
-
-    # if person_email == 'dgrandis@cisco.com':
-    #     message = '<@personEmail:dgrandis@cisco.com|Master>, {}'.format(message)
-    # else:
-    #     message = '<@personEmail:' + person_email + '>, {}'.format(message)
-
     api = WebexTeamsAPI(botToken)
 
     if argument == '':
@@ -270,8 +264,6 @@ def action(person_email, space_id, action, argument):
     elif action == 'echo':
         response  = 'request:\n'
         response += argument
-        mention = '<@personEmail:{}>'.format(person_email)
-        message = '{}, {}'.format(mention, response)
         api.messages.create(space_id, markdown=message)
 
     elif action == 'status':
@@ -285,7 +277,11 @@ def action(person_email, space_id, action, argument):
         OrgReport(space_id, person_email, argument)
 
     elif action == 'report_incomplete':
-        message = 'please specify the trial id for the report'
+        response = 'please specify the trial id for the report'
+        if person_email == 'dgrandis@cisco.com':
+            message = '<@personEmail:dgrandis@cisco.com|Master>, {}'.format(response)
+        else:
+            message = '<@personEmail:{}>, {}'.format(person_email, response)
         api.messages.create(space_id, markdown=message)
 
     elif action == 'unauthorized':
@@ -302,6 +298,7 @@ def action(person_email, space_id, action, argument):
 
     else:
         return
+
 
 def ChannelReport(space_id, person_email):
 
