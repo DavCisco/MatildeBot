@@ -143,8 +143,6 @@ def webhook(request):
     # filters out messages sent by Matilde herself
     if person.displayName != 'Matilde':
 
-        logger.info('*** request from {}'.format(person.displayName))
-
         # checks if the sender and/or the space are authorized
         if authorizedRequest(person.emails[0], room.id):
             logger.info('Request from authz user/space {}/{}'.format(person.emails[0], room.id))
@@ -176,6 +174,7 @@ def webhook(request):
                 else:
                     response = 'unknown'
         else:
+            logger.info('**UNAUTH**')
             response = 'unauthorized'
         
         # executes
