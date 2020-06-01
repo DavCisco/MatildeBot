@@ -36,7 +36,7 @@ def webhook(request):
 
         # the log file is located in the same folder as this script
         # -> adds the absolute path of the current module to the log file
-        file = os.path.join(os.path.dirname(__file__), 'scheduler.log')
+        file = os.path.join(os.path.dirname(__file__), 'matilde-bot.log')
         logfile = logging.FileHandler(file)
         logfile.setLevel(logging.DEBUG)
         logfile.setFormatter(formatter)
@@ -142,6 +142,8 @@ def webhook(request):
 
     # filters out messages sent by Matilde herself
     if person.displayName != 'Matilde':
+
+        logger.info('*** request from {}'.format(person.displayName))
 
         # checks if the sender and/or the space are authorized
         if authorizedRequest(person.emails[0], room.id):
